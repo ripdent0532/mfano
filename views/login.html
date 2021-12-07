@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <style type="text/css">
+        .h-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translateX(-50%) translateY(-50%);
+        }
+    </style>
+    <link rel="icon" href="assets/icon.png" type="image/x-icon">
+    <title>Mfano</title>
+</head>
+<body style="background: #666699!important;">
+    <div data-include="component/toast"></div>
+    <div class="container h-center">
+        <div class="row justify-content-evenly">
+            <div class="col-md-3 card m-5 p-4">
+                <div class="mx-auto mb-2"><h2 style="color: #666699">Mfano</h2></div>
+                <div class="card-body">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text" id="login-name-span">名字</span>
+                        <input type="text" id="login-name" class="form-control" aria-describedby="login-name-span">
+                    </div>
+                    <div class="input-group input-group-sm mb-4">
+                        <span class="input-group-text" id="login-password-span">密码</span>
+                        <input type="password" id="login-password" class="form-control" aria-describedby="login-password-span">
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%; background: #666699!important; border: none;" onclick="login()">登录</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossOrigin="anonymous"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function login() {
+            let data = {}
+            data["username"] = $('#login-name').val()
+            data["password"] = $('#login-password').val()
+            $.ajax({
+                url: apiHost + "/login",
+                method: "post",
+                async: false,
+                data: JSON.stringify(data),
+                contentType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function (data) {
+                    sessionSet("user", data.user)
+                    sessionSet("resources", data.resources)
+                    window.location.href="/"
+                },
+                error: function (resp) {
+                    showToast('warning', {"message": resp.responseJSON})
+                }
+            })
+        }
+    </script>
+</body>
+</html>

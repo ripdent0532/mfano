@@ -1,0 +1,40 @@
+<div aria-live="polite" aria-atomic="true" class="position-relative" style="z-index: 999999">
+    <div id="toast-container" class="toast-container position-absolute top-0 end-0 p-3"></div>
+</div>
+<script id="toastTemplate", type="text/x-jquery-tmpl">
+    <div id="alert-toast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #666699!important">
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</script>
+<script id="warningToastTemplate", type="text/x-jquery-tmpl">
+    <div id="alert-toast" class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</script>
+
+<script>
+    function showToast(type, data) {
+        $('#toast-container').empty()
+        if (type === 'success') {
+            $('#toastTemplate').tmpl(data).appendTo('#toast-container')
+        } else if (type === 'warning') {
+            $('#warningToastTemplate').tmpl(data).appendTo('#toast-container')
+        } else {
+            return
+        }
+        let alertToast = document.getElementById('alert-toast')
+        let toast = bootstrap.Toast.getOrCreateInstance(alertToast)
+        toast.show()
+    }
+
+    function hiddenToast() {
+        $('#toast-container').empty()
+    }
+
+</script>
