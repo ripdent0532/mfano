@@ -11,7 +11,7 @@ import (
 )
 
 type SessionUser struct {
-	Id        int
+	Id        int64
 	Name      string
 	NickName  string
 	AvatarURL string

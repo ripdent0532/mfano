@@ -13,11 +13,13 @@ $(function () {
 })
 
 function loadUsers(pageNum, username) {
+    let queryMap = new Map()
+    queryMap.set('page_num', pageNum)
+    queryMap.set('username', username)
     $.ajax({
-        url: apiHost + '/users',
+        url: apiHost + '/v1/users' + queryParam(queryMap),
         method: 'GET',
-        dataType: 'JSON',
-        data: {'pageNum': pageNum, 'userName': username},
+        dataType: 'json',
         async: true,
         xhrFields: {
             withCredentials: true
@@ -25,10 +27,12 @@ function loadUsers(pageNum, username) {
         crossDomain: true,
         success: function (resp) {
             $('#userList').empty()
-            $('#usersTemplate').tmpl(resp.data).appendTo('#userList')
-            page.options.total = resp.total
-            page.options.currentPage = resp.num
-            page.options.pageSize = resp.size
+            if (resp["data"] != null) {
+                $('#usersTemplate').tmpl(resp.data).appendTo('#userList')
+            }
+            page.options.total = resp["page"].total
+            page.options.currentPage = resp["page"].num
+            page.options.pageSize = resp["page"].size
             page.renderPageNum()
         }
     })
@@ -48,10 +52,10 @@ function addUser() {
         nickname = document.getElementById('nickname').value
         email = document.getElementById('email').value
         $.ajax({
-            url: apiHost + '/user',
+            url: apiHost + '/v1/user',
             method: 'POST',
             dataType: 'JSON',
-            data: {'username': username, 'nickname': nickname, 'email': email},
+            data: JSON.stringify({'username': username, 'nickname': nickname, 'email': email}),
             async: true,
             xhrFields: {
                 withCredentials: true
@@ -62,17 +66,18 @@ function addUser() {
                 document.getElementById('addBtnTxt').classList.toggle('visually-hidden')
             },
             success: function (data) {
-                showToast('success', {"message": "操作成功"})
+                if (data.code === 0) {
+                    showToast('success', {"message": data["msg"]})
+                }
+                if (data.code === 40001) {
+                    showToast('warning', {"message": data["msg"]})
+                }
+
                 setTimeout(function () {
                     hiddenToast()
                     clearInputForm()
                     loadUsers()
                 }, 1500);
-            },
-            error: function (resp) {
-                if (resp.status === 401) {
-                    alert("别闹！")
-                }
             },
             complete: function () {
                 document.getElementById('addAnimation').classList.toggle('visually-hidden')

@@ -16,11 +16,11 @@ function onPageChange(num) {
 
 function loadProject(pagenum, groupId) {
     $.ajax({
-        url: apiHost + '/projects',
+        url: apiHost + '/v1/projects',
         method: 'GET',
         dataType: 'json',
         async: true,
-        data: {pageNum: pagenum, groupId: groupId},
+        data: {page_num: pagenum, group_id: groupId},
         xhrFields: {
             withCredentials: true
         },
@@ -28,9 +28,9 @@ function loadProject(pagenum, groupId) {
         success: function (resp) {
             document.getElementById('projectList').innerHTML = ''
             $('#projectsTemplate').tmpl(resp.data).appendTo('#projectList')
-            page.options.total = resp.total
-            page.options.currentPage = resp.num
-            page.options.pageSize = resp.size
+            page.options.total = resp['page']['total']
+            page.options.currentPage = resp['page']['num']
+            page.options.pageSize = resp['page']['size']
             page.renderPageNum()
         },
         error: function (resp) {
@@ -50,7 +50,7 @@ function submit() {
             formData.append(file.name, file)
         }
         $.ajax({
-            url: apiHost + '/project?group=' + projectGroup,
+            url: apiHost + '/v1/project?group=' + projectGroup,
             type: 'POST',
             async: true,
             data: formData,
@@ -94,7 +94,7 @@ function clearInputFileForm() {
 
 function loadGroup() {
     $.ajax({
-        url: apiHost + '/groups',
+        url: apiHost + '/v1/groups',
         method: 'GET',
         async: true,
         xhrFields: {
@@ -102,11 +102,12 @@ function loadGroup() {
         },
         crossDomain: true,
         success: function (resp) {
-            $('#groups').empty()
-            $('#projectGroupTemplate').tmpl(resp.data).appendTo('#groups')
-
-            $('#searchGroups').empty()
-            $('#projectGroupTemplate').tmpl(resp.data).appendTo('#searchGroups')
+            if (resp.code === 0) {
+                $('#groups').empty()
+                $('#searchGroups').empty()
+                $('#projectGroupTemplate').tmpl(resp.data).appendTo('#groups')
+                $('#projectGroupTemplate').tmpl(resp.data).appendTo('#searchGroups')
+            }
         }
     })
 }

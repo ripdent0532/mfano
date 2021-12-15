@@ -34,15 +34,14 @@
         let navbar = document.querySelector("#navbarNav .navbar-nav")
         let innerHtml = '<li class="nav-item"><a class="nav-link active" href="/">首页</a></li>'
         for (let resource of resources) {
-            innerHtml += '<li class="nav-item"><a class="nav-link active" href="'+ resource.Url +'">'+resource.Name+'</a></li>'
+            innerHtml += '<li class="nav-item"><a class="nav-link active" href="'+ resource.url +'">'+resource.name+'</a></li>'
         }
         navbar.innerHTML = innerHtml
-
     }()
 
     function logout() {
         $.ajax({
-            url: apiHost + "/logout",
+            url: apiHost + "/v1/user/logout",
             method: "get",
             xhrFields: {
                 withCredentials: true

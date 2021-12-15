@@ -1,30 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"reflect"
 	"time"
 
+	v1 "github.com/rip0532/mfano/api/v1"
+
+	"github.com/rip0532/mfano/model"
+
 	logger "github.com/rip0532/mfano/lib/log"
-
-	"github.com/rip0532/mfano/lib/db"
-
-	"github.com/rip0532/mfano/endpoint/user"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 
-	"github.com/rip0532/mfano/endpoint/group"
-	"github.com/rip0532/mfano/endpoint/project"
-
 	"github.com/gin-gonic/gin"
 	translations "github.com/go-playground/validator/v10/translations/zh"
-	"github.com/rip0532/mfano/endpoint/login"
 	"github.com/rip0532/mfano/lib"
 	"github.com/rip0532/mfano/lib/constant"
 	"github.com/rip0532/mfano/middleware"
@@ -45,15 +40,18 @@ func init() {
 		os.MkdirAll(constant.Db_Dir, os.ModeDir)
 		logger.Info.Printf("创建文件夹：%s\n", constant.Db_Dir)
 	}
-	// 连接数据库
-	db.Open()
+
+	// 初始化数据库
+	if err := model.InitializeDatabase(); err != nil {
+		panic(err)
+	}
+	if err := InitializeTrans(); err != nil {
+		logger.Error.Println(err.Error())
+		panic(err)
+	}
 }
 
 func main() {
-	if err := InitializeTrans(); err != nil {
-		fmt.Println(err.Error())
-		panic(err)
-	}
 	gin.SetMode(gin.ReleaseMode)
 	resourceServer := &http.Server{
 		Addr:         ":8081",
@@ -119,11 +117,16 @@ func serverRouter() http.Handler {
 	logger.Info.Println("初始化API接口服务")
 	e := gin.Default()
 	e.Use(middleware.Session(), middleware.Cros())
-	authorized := e.Group("/", middleware.SessionHandler())
-	login.Register(e, authorized)
-	project.Register(authorized)
-	user.Register(authorized)
-	group.Register(authorized)
+	e.POST("/v1/user/login", v1.UserLoginHandler)
+	e.POST("/v1/user/register", v1.UserRegisterHandler)
+	e.GET("/v1/user/logout", v1.UserLogoutHandler, middleware.SessionHandler())
+	e.POST("/v1/user/update", v1.UserUpdateHandler, middleware.SessionHandler())
+	e.GET("/v1/users", v1.UserListHandler, middleware.SessionHandler())
+	e.POST("/v1/user", v1.AddUserHandler, middleware.SessionHandler())
+	e.GET("/v1/groups", v1.GroupQueryHandler, middleware.SessionHandler())
+	e.POST("/v1/project", v1.ProjectAddHandler, middleware.SessionHandler())
+	e.GET("/v1/projects", v1.ProjectQueryHandler, middleware.SessionHandler())
+	e.POST("/v1/user/forbidden", v1.ForbiddenHandler, middleware.SessionHandler())
 	return e
 }
 

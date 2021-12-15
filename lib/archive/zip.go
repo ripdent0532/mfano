@@ -26,15 +26,21 @@ func NewZip() *Zip {
 	return &Zip{}
 }
 
-func (z *Zip) UnZip(dst, filename string) (err error) {
-	zr, err := zip.OpenReader(constant.HomeDir + "/" + filename)
+type UploadFile struct {
+	File      string
+	Timestamp string
+}
+
+func (z *Zip) UnZip(dst string, file UploadFile) (err error) {
+	zrFilePath := constant.HomeDir + "/" + file.Timestamp + "/" + file.File
+	zr, err := zip.OpenReader(zrFilePath)
 	defer zr.Close()
 	if err != nil {
 		return
 	}
-
 	if dst != "" {
-		if err := os.MkdirAll(dst, 0755); err != nil {
+		dst = dst + "/" + file.Timestamp
+		if err := os.MkdirAll(dst, os.ModePerm); err != nil {
 			log.Println(err.Error())
 			return err
 		}

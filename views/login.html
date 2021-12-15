@@ -46,7 +46,7 @@
             data["username"] = $('#login-name').val()
             data["password"] = $('#login-password').val()
             $.ajax({
-                url: apiHost + "/login",
+                url: apiHost + "/v1/user/login",
                 method: "post",
                 async: false,
                 data: JSON.stringify(data),
@@ -55,13 +55,14 @@
                     withCredentials: true
                 },
                 crossDomain: true,
-                success: function (data) {
-                    sessionSet("user", data.user)
-                    sessionSet("resources", data.resources)
-                    window.location.href="/"
-                },
-                error: function (resp) {
-                    showToast('warning', {"message": resp.responseJSON})
+                success: function (resp) {
+                    if (resp['code'] === 40001) {
+                        showToast('warning', {"message": resp['msg']})
+                    } else {
+                        sessionSet("user", resp.data.user)
+                        sessionSet("resources", resp.data.resources)
+                        window.location.href="/"
+                    }
                 }
             })
         }

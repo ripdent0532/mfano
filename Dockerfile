@@ -17,8 +17,8 @@ RUN apk add tzdata ca-certificates && cp /usr/share/zoneinfo/Asia/Shanghai /etc/
     && apk del tzdata && rm -rf /var/cache/apk/*
 ENV LANG="C.UTF-8" \
     HOME_DIR=/home \
-    DST_DIR=/root/pp/static \
-    DB_DIR=/root/pp/db
+    DST_DIR=/root/pp/static
+
 WORKDIR /root
 COPY --from=builder /app/mfano .
 COPY mfano.sqlite /root

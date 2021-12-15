@@ -17,7 +17,7 @@ window.onload = function () {
         let postJson = {'username': name, 'nickname': nickName, 'email': email}
         if (passwordElement.value != '' && newPasswordElement.value != '' && confirmPasswordElement.value != '') {
             postJson = {
-                'name': name,
+                'username': name,
                 'nickname': nickName,
                 'email': email,
                 'originPassword': passwordElement.value,
@@ -26,10 +26,10 @@ window.onload = function () {
             }
         }
         $.ajax({
-            url: apiHost + '/user/update',
+            url: apiHost + '/v1/user/update',
             method: 'POST',
             dataType: 'JSON',
-            data: postJson,
+            data: JSON.stringify(postJson),
             async: true,
             xhrFields: {
                 withCredentials: true
@@ -39,8 +39,14 @@ window.onload = function () {
                 document.getElementById('updateAnimation').classList.toggle('visually-hidden')
                 document.getElementById('updateBtnTxt').classList.toggle('visually-hidden')
             },
-            success: function (data) {
-                showToast('success', {message: "更新用户信息成功"})
+            success: function (resp) {
+                if (resp.code === 40001) {
+                    showToast('warning', {message: resp.msg})
+                }
+                if (resp.code === 0) {
+                   showToast('success', {message: resp.msg})
+                }
+
                 setTimeout(function () {
                     hiddenToast()
                 }, 1500);
